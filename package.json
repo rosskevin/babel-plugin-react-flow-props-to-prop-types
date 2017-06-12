@@ -1,5 +1,5 @@
 {
-  "name": "babel-plugin-react-flow-props-to-prop-types",
+  "name": "@alienfast/babel-plugin-react-flow-props-to-prop-types",
   "version": "0.8.0",
   "description": "Convert Flow React props annotation to PropTypes",
   "main": "lib/index.js",
@@ -7,6 +7,7 @@
   "license": "MIT",
   "repository": "thejameskyle/babel-plugin-react-flow-props-to-prop-types",
   "scripts": {
+    "af-publish": "npm version patch && npm run build && npm publish",
     "precommit": "lint-staged --verbose",
     "prepublish": "yarn build",
     "format": "yarn format-files -s '{src,test}/**/*.js'",
