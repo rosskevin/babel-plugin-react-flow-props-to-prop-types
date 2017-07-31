@@ -10,6 +10,7 @@
     "lib"
   ],
   "scripts": {
+    "af-publish": "npm version patch && npm run build && npm publish",
     "precommit": "lint-staged --verbose",
     "prepublish": "yarn build",
     "format": "yarn format-files -s '{src,test}/**/*.js'",
