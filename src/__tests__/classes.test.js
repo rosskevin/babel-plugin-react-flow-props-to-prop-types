@@ -439,7 +439,7 @@ pluginTester({
       `,
     },
     {
-      title: 'maybe',
+      title: 'maybe object value',
       code: `
         class Foo extends React.Component {
           props: {
@@ -454,7 +454,55 @@ pluginTester({
             a: ?boolean
           };
           static propTypes = {
-            a: _PropTypes.oneOf(null, undefined, _PropTypes.bool).isRequired
+            a: _PropTypes.bool
+          };
+        }
+      `,
+    },
+    {
+      title: 'maybe nested object value',
+      code: `
+        class Foo extends React.Component {
+          props: {
+            a: {
+              b: ?boolean
+            }
+          };
+        }
+      `,
+      output: `
+        import _PropTypes from "prop-types";
+        class Foo extends React.Component {
+          props: {
+            a: {
+              b: ?boolean
+            }
+          };
+          static propTypes = {
+            a: _PropTypes.shape({
+              b: _PropTypes.bool
+            }).isRequired
+          };
+        }
+      `,
+    },
+    {
+      title: 'maybe non-object value',
+      code: `
+        class Foo extends React.Component {
+          props: {
+            a: Array<?boolean>
+          };
+        }
+      `,
+      output: `
+        import _PropTypes from "prop-types";
+        class Foo extends React.Component {
+          props: {
+            a: Array<?boolean>
+          };
+          static propTypes = {
+            a: _PropTypes.arrayOf(_PropTypes.oneOf([null, undefined, _PropTypes.bool])).isRequired
           };
         }
       `,
@@ -757,46 +805,95 @@ pluginTester({
         }
       `,
     },
-
-    // context types
     {
-      title: 'context types',
+      title: 'PropTypes replacement',
       code: `
+        import type { PropType } from "babel-plugin-react-flow-props-to-prop-types";
+
         class Foo extends React.Component {
-          contextTypes: {
-            a: {
-              b: any,
-              "c": any,
-            }
-          }
           props: {
-            a: number
+            a: PropType<UnknownFunctionType, Function>
           };
         }
       `,
       output: `
         import _PropTypes from "prop-types";
+        import type { PropType } from "babel-plugin-react-flow-props-to-prop-types";
+
         class Foo extends React.Component {
-          contextTypes: {
-            a: {
-              b: any;
-              "c": any;
-            }
-          };
-          static contextTypes = {
-            a: _PropTypes.shape({
-              b: _PropTypes.any.isRequired,
-              "c": _PropTypes.any.isRequired
-            }).isRequired
-          };
           props: {
-            a: number
+            a: PropType<UnknownFunctionType, Function>
           };
           static propTypes = {
-            a: _PropTypes.number.isRequired
+            a: _PropTypes.func.isRequired
           };
         }
       `,
+    },
+    {
+      title: 'top-level intersection objects',
+      code: `
+        class Foo extends React.Component {
+          props: { foo: boolean } & { bar: boolean };
+        }
+      `,
+      output: `
+        import _PropTypes from "prop-types";
+        class Foo extends React.Component {
+          props: { foo: boolean } & { bar: boolean };
+          static propTypes = {
+            foo: _PropTypes.bool.isRequired,
+            bar: _PropTypes.bool.isRequired
+          };
+        }
+      `,
+    },
+    {
+      title: 'top-level intersection non-objects',
+      code: `
+        class Foo extends React.Component {
+          props: boolean & number;
+        }
+      `,
+      error: true,
+    },
+    {
+      title: 'HasDefaultProp',
+      code: `
+        import type { HasDefaultProp } from "babel-plugin-react-flow-props-to-prop-types";
+
+        class Foo extends React.Component {
+          props: {
+            a: HasDefaultProp<Function>
+          };
+        }
+      `,
+      output: `
+        import _PropTypes from "prop-types";
+        import type { HasDefaultProp } from "babel-plugin-react-flow-props-to-prop-types";
+
+        class Foo extends React.Component {
+          props: {
+            a: HasDefaultProp<Function>
+          };
+          static propTypes = {
+            a: _PropTypes.func
+          };
+        }
+      `,
+    },
+    {
+      title: 'HasDefaultProp error',
+      code: `
+        import type { HasDefaultProp } from "babel-plugin-react-flow-props-to-prop-types";
+
+        class Foo extends React.Component {
+          props: {
+            a: { b: HasDefaultProp<Function> }
+          };
+        }
+      `,
+      error: true,
     },
   ]),
 });

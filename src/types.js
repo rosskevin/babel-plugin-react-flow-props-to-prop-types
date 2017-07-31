@@ -2,7 +2,7 @@
 
 export type Node = {
   type: string,
-  [prop: string]: any,
+  [prop: any]: any,
 };
 
 export type Path = {
@@ -18,6 +18,7 @@ export type Path = {
 export type Binding = {
   kind: string,
   path: Path,
+  [prop: string]: any,
 };
 
 export type Scope = {
